@@ -83,7 +83,7 @@ const CandidateSearch = () => {
     <>
       <h1>Candidate Search</h1>
       {currentUser ? (
-        <div className='card fixed-card'>
+        <div className='card candidate-card'>
           {currentUser.avatar_url ? (
             <img
               src={currentUser.avatar_url}

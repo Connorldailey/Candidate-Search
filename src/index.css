@@ -116,24 +116,26 @@ tbody tr:nth-child(odd) {
   font-weight: 700;
 }
 
+.candidate-card {
+  width: 80%;
+  max-width: 450px;
+}
+
+.btn-container {
+  width: 80%;
+  max-width: 450px;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.2rem 0.6rem;
+}
+
 .table {
   width: 80vw;
   table-layout: fixed;
-}
-
-.fixed-card {
-  width: 450px;
 }
 
 td, th {
   word-wrap: break-word;
   white-space: normal;
   overflow-wrap: break-word;
-}
-
-.btn-container {
-  width: 450px;
-  display: flex;
-  justify-content: space-between;
-  padding: 1.2rem 0.6rem;
 }
