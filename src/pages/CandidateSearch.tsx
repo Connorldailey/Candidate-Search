@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { searchGithub, searchGithubUser } from '../api/API';
 import Candidate from '../interfaces/Candidate.interface'
 
 const CandidateSearch = () => {
-
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<Candidate | null>(null);
 
+  // Load candidates on component mount
   useEffect(() => {
     const loadCandidates = async () => {
       try {
         const users: Candidate[] = await searchGithub();
         setCandidates(users);
-        if (users.length > 0) {
-          setCurrentUser(users[0]);
-        }
       } catch (error) {
         console.error('Error loading candidates:', error);
       }
@@ -23,33 +20,41 @@ const CandidateSearch = () => {
     loadCandidates();
   }, []);
 
+  // Move to the next candidate
+  const handleNextCandidate = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex < candidates.length - 1 ? prevIndex + 1 : prevIndex
+    );
+  }, [candidates]);
+
+  // Fetch details of the current candidate
   useEffect(() => {
-    const getUser = async () => {
-      if (candidates.length > 0 && currentIndex < candidates.length) {
-        const searchUser = candidates[currentIndex]?.login;
-        if (!searchUser) {
-          handleNextCandidate();
-          return;
-        }
-        try {
-          const user = await searchGithubUser(searchUser);
-          if (user?.login) {
-            const { login, location, email, company, bio, avatar_url } = user;
-            setCurrentUser({ login, location, email, company, bio, avatar_url });
-          } else {
-            console.log(`User ${searchUser} not found. Skipping to next user.`);
-            handleNextCandidate();
-          }
-        } catch (error) {
-          console.error('Error fetching user:', error);
-          handleNextCandidate();
-        }
-      } else {
+    const getUserDetails = async () => {
+      if (candidates.length === 0 || currentIndex >= candidates.length) {
         setCurrentUser(null);
+        return;
       }
-    };
-    getUser();
-  });
+      const { login } = candidates[currentIndex];
+      if (!login) {
+        handleNextCandidate();
+        return;
+      }
+      try {
+        const userDetails = await searchGithubUser(login);
+        if (userDetails?.login) {
+          const { login, location, email, company, bio, avatar_url } = userDetails;
+          setCurrentUser({ login, location, email, company, bio, avatar_url });
+        } else {
+          console.log(`User ${login} not found. Skipping to next user.`);
+          handleNextCandidate();
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        handleNextCandidate();
+      }
+    }
+    getUserDetails();
+  }, [candidates, currentIndex, handleNextCandidate]);
 
   // Save the current candidate and move to the next one
   const handleSaveCandidate = () => {
@@ -59,30 +64,26 @@ const CandidateSearch = () => {
     handleNextCandidate();
   };
 
-  // Move to the next candidate
-  const handleNextCandidate = () => {
-    if (currentIndex < candidates.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setCurrentUser(null);
-      console.log("No more candidates available");
-    }
-  };
-
+  // Save a candidate to the list of potential candidates in local storage
   const addToPotentialCandidatesList = (currentUser: Candidate) => {
-    let parsedCandidates: Candidate[] = [];
-    const storedCandidates = localStorage.getItem('potentialCandidates');
-    if (typeof storedCandidates === 'string') {
-      parsedCandidates = JSON.parse(storedCandidates);
+    try {
+      let parsedCandidates: Candidate[] = [];
+      const storedCandidates = localStorage.getItem('potentialCandidates');
+      if (typeof storedCandidates === 'string') {
+        parsedCandidates = JSON.parse(storedCandidates);
+      }
+      parsedCandidates.push(currentUser);
+      localStorage.setItem('potentialCandidates', JSON.stringify(parsedCandidates));
+    } catch (error) {
+      console.error('Error saving candidate to localStorage:', error);
     }
-    parsedCandidates.push(currentUser);
-    localStorage.setItem('potentialCandidates', JSON.stringify(parsedCandidates));
   };
 
   return (
     <>
       <h1>Candidate Search</h1>
       {currentUser ? (
+        // Display the current candidate's details
         <div className='card candidate-card'>
           {currentUser.avatar_url ? (
             <img
@@ -106,8 +107,10 @@ const CandidateSearch = () => {
           </div>
         </div>
       ) : (
+        // Message to display if no candidates are available
         <p>No more candidates available</p>
       )}
+      {/* Buttons to skip or save candidates */}
       <div className="btn-container">
         <button onClick={handleNextCandidate} className='btn btn-danger btn-lg rounded-circle'>
           <i className="bi bi-dash-lg"></i>
