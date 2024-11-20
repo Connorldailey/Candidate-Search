@@ -130,3 +130,10 @@ td, th {
   white-space: normal;
   overflow-wrap: break-word;
 }
+
+.btn-container {
+  width: 450px;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.2rem 0.6rem;
+}

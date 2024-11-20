@@ -14,14 +14,14 @@ const CandidateSearch = () => {
         const users: Candidate[] = await searchGithub();
         setCandidates(users);
         if (users.length > 0) {
-          setCurrentUser(users[currentIndex]);
+          setCurrentUser(users[0]);
         }
       } catch (error) {
         console.error('Error loading candidates:', error);
       }
     };
     loadCandidates();
-  }, [currentIndex]);
+  }, []);
 
   useEffect(() => {
     const getUser = async () => {
@@ -108,8 +108,8 @@ const CandidateSearch = () => {
       ) : (
         <p>No more candidates available</p>
       )}
-      <div className="p-3">
-        <button onClick={handleNextCandidate} className='btn btn-danger btn-lg rounded-circle me-3'>
+      <div className="btn-container">
+        <button onClick={handleNextCandidate} className='btn btn-danger btn-lg rounded-circle'>
           <i className="bi bi-dash-lg"></i>
         </button>
         <button onClick={handleSaveCandidate} className='btn btn-success btn-lg rounded-circle'>
