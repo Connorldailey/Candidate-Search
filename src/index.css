@@ -124,3 +124,9 @@ tbody tr:nth-child(odd) {
 .fixed-card {
   width: 450px;
 }
+
+td, th {
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
