@@ -50,7 +50,7 @@ If the application does not open in your web browser by default, navigate to `ht
 
 ## Usage 
 
-To use the application, visit the [live site]().
+To use the application, visit the [live site](https://candidate-search-a50r.onrender.com).s
 
 ### How to get started
 
